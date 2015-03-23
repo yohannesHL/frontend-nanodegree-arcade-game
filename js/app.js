@@ -26,6 +26,56 @@ Enemy.prototype.render = function() {
 // a handleInput() method.
 
 
+function initGame() {
+
+    window.game = {};
+
+    window.worldX = 0;
+    window.worldY = 50;
+    window.worldWidth = ctx.canvas.width;
+    window.worldHeight = ctx.canvas.height - 70;
+    window.worldR = worldX + worldWidth;
+    window.worldB = worldY + worldHeight;
+    window.animDelta = 0;
+
+    window.score = 0;
+    window.gameTime = 0;
+
+    window.maxLevel = 3;
+    window.level = 1;
+
+    window.gameOver = false;
+    window.gameComplete = false;
+    window.showLevelUp = false;
+    levelComplete = false;
+
+    window.gridWidth = 101;
+    window.gridHeight = 83;
+
+    window.currentLevel = getLevelFeatures(level);
+
+
+
+    window.lootItems = new LootItems(
+        currentLevel.itemCount,
+        currentLevel.itemNames);
+    window.keyItem = new Item('key');
+    window.chum = new Chum(level);
+    window.player = new Player();
+    window.zone = new Zone(level);
+    // current.maxEnemies;
+    //current.initialEnemyCount
+
+    window.allEnemies = [];
+    var initialEnemyCount = 3;
+
+    for (var i = 0; i < initialEnemyCount; i++) {
+        allEnemies.push(new Enemy());
+    }
+}
+initGame();
+
+
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
@@ -39,7 +89,8 @@ document.addEventListener('keyup', function(e) {
         37: 'left',
         38: 'up',
         39: 'right',
-        40: 'down'
+        40: 'down',
+
     };
 
     player.handleInput(allowedKeys[e.keyCode]);
