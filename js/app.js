@@ -8,160 +8,172 @@
  * ==========
  * holds all the game properties and methods pertaining to game state
  */
-var World = function() {
+var Game = function() {
     this.animationTime = 0;
     this.isAnimating = false;
     this.level = 1;
+    this.state = 'start';
     this.reset(); // reset properties
 
 };
 
-World.prototype = {
-    game: {
-        gridWidth: 101,
-        gridHeight: 83,
-        canvas: {
-            x: 0,
-            y: 50,
-            width: 505,
-            height: 606
+Game.prototype = {
+    gridWidth: 101,
+    gridHeight: 83,
+    canvas: {
+        x: 0,
+        y: 50,
+        width: 707,
+        height: 765
+    },
+    rowImages: {
+        stone: 'images/stone-block.png',
+        grass: 'images/grass-block.png',
+        water: 'images/water-block.png'
+    },
+    numRows: 8,
+    numCols: 7,
+    initialEnemyCount: 3,
+    enemyTypes: [{
+        url: 'images/enemy-bug.png',
+        minSpeed: 25,
+        maxSpeed: 50
+    }, {
+        url: 'images/enemy-bug-green.png',
+        minSpeed: 45,
+        maxSpeed: 75
+    }, {
+        url: 'images/enemy-bug-yellow.png',
+        minSpeed: 50,
+        maxSpeed: 100
+    }, ],
+    levelFeatures: {
+        1: {
+            itemNames: ['heart', 'star', 'blueGem', 'greenGem'],
+            itemCount: 5,
+            maxEnemies: 10,
+            enemyLaneRows: [1, 2, 3, 4, 5],
+            rowList: ['grass', 'stone', 'stone', 'stone', 'stone', 'stone', 'grass', 'water'],
+            playerPos: [600, 575],
+            bossPos: [125, 90],
+            buddySprite: {
+                url: 'images/char-cat-girl.png',
+                pos: {
+                    x: 10,
+                    y: 51
+                }
+            },
+            bounds: { // world bounds
+                x: 0,
+                y: 55,
+                r: 707,
+                b: 625
+            }
         },
-        numRows: 5,
-        numCols: 6,
-        initialEnemyCount: 3,
-        levelFeatures: {
-            1: {
-                itemNames: ['heart', 'star', 'blueGem', 'greenGem'],
-                itemCount: 5,
-                maxEnemies: 10,
-                worldMatrix: [
-                    [0, 0, 0, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1],
-                    [3, 3, 3, 3, 3, 3, 3],
-                    [3, 3, 3, 3, 3, 3, 3],
-                    [3, 3, 3, 3, 3, 3, 3],
-                    [1, 1, 1, 1, 1, 1, 1]
-                ],
-                playerLocation: [303, 55],
-                enemyLaneRows: [0, 1, 2],
-                buddySprite: {
-                    url: 'images/char-cat-girl.png',
-                    pos: {
-                        x: 200,
-                        y: 200
-                    }
-                },
-                bounds: { // world bounds
-                    x: 0,
-                    y: 55,
-                    r: 505,
-                    b: 455
+        2: {
+            itemNames: ['heart', 'star', 'blueGem', 'greenGem', 'greenGem'],
+            itemCount: 5,
+            maxEnemies: 15,
+            enemyLaneRows: [2, 3, 4, 5, 6],
+            rowList: ['water', 'grass', 'stone', 'stone', 'stone', 'stone', 'grass', 'water', ],
+            bossPos: [125, 540],
+            playerPos: [303, 55],
+            buddySprite: {
+                url: 'images/char-horn-girl.png',
+                pos: {
+                    x: 10,
+                    y: 550
                 }
             },
-            2: {
-                itemNames: ['heart', 'star', 'blueGem', 'greenGem', 'greenGem'],
-                itemCount: 5,
-                maxEnemies: 15,
-                worldMatrix: [
-                    [1, 1, 1, 1, 2, 2, 2],
-                    [1, 1, 1, 0, 0, 0, 0],
-                    [1, 1, 1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1],
-                    [2, 2, 2, 2, 2, 2, 2],
-                    [2, 2, 2, 2, 2, 2, 2]
-                ],
-                buddySprite: {
-                    url: 'images/char-horn-girl.png',
-                    pos: {
-                        x: 200,
-                        y: 200
-                    }
-                },
-                bounds: {
-                    x: window.worldX,
-                    y: window.worldY + 103, //83+20
-                    r: window.worldR,
-                    b: 415
-                }
-            },
-            3: {
-                itemNames: ['heart', 'star', 'blueGem', 'greenGem', 'greenGem'],
-                itemCount: 5,
-                maxEnemies: 20,
-                worldMatrix: [
-                    [1, 1, 1, 1, 2, 2, 2],
-                    [1, 1, 1, 0, 0, 0, 0],
-                    [1, 1, 1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1],
-                    [2, 2, 2, 2, 2, 2, 2],
-                    [0, 0, 0, 0, 2, 2, 2]
-                ],
-                buddySprite: {
-                    url: 'images/char-princess-girl.png',
-                    pos: {
-                        x: 200,
-                        y: 370
-                    }
-                },
-                bounds: {
-                    x: window.worldX,
-                    y: window.worldY + 103, //83+20
-                    r: window.worldR,
-                    b: 415
-                }
-            },
+            bounds: {
+                x: 0,
+                y: 133, //83+50
+                r: 707,
+                b: 625
+            }
         },
-        availableItems: {
-            'key': {
-                url: 'images/key.png',
-                points: 500,
-                name: 'key'
+        3: {
+            itemNames: ['heart', 'star', 'blueGem', 'greenGem', 'greenGem'],
+            itemCount: 5,
+            maxEnemies: 20,
+            enemyLaneRows: [1, 2, 3, 4, 5],
+            rowList: ['grass', 'stone', 'stone', 'stone', 'stone', 'stone', 'grass', 'grass', ],
+            bossPos: [45, 200],
+            playerPos: [303, 555],
+            buddySprite: {
+                url: 'images/char-princess-girl.png',
+                pos: {
+                    x: 20,
+                    y: 70
+                }
             },
-            'blueGem': {
-                url: 'images/gem blue.png',
-                points: 200,
-                name: 'blue gem'
-            },
-            'greenGem': {
-                url: 'images/gem green.png',
-                points: 250,
-                name: 'green gem'
-            },
-            'orangeGem': {
-                url: 'images/gem orange.png',
-                points: 300,
-                name: 'orange gem'
-            },
-            'star': {
-                url: 'images/star.png',
-                points: 500,
-                name: 'star'
-            },
-            'heart': {
-                url: 'images/heart.png',
-                points: 500,
-                name: 'heart'
+            bounds: {
+                x: 0,
+                y: 50, //83+20
+                r: 707,
+                b: 708
             }
         },
     },
+    availableItems: {
+        'key': {
+            url: 'images/key.png',
+            points: 500,
+            name: 'key'
+        },
+        'blueGem': {
+            url: 'images/gem blue.png',
+            points: 200,
+            name: 'blue gem'
+        },
+        'greenGem': {
+            url: 'images/gem green.png',
+            points: 250,
+            name: 'green gem'
+        },
+        'orangeGem': {
+            url: 'images/gem orange.png',
+            points: 300,
+            name: 'orange gem'
+        },
+        'star': {
+            url: 'images/star.png',
+            points: 500,
+            name: 'star'
+        },
+        'heart': {
+            url: 'images/heart.png',
+            points: 500,
+            name: 'heart'
+        }
+    },
+    pause: function() {
+        this.state = 'pause';
+    },
+    resetState: function() {
+        this.state = '';
+    },
+    togglePause: function() {
+        this.state = this.state === '' ? 'pause' : '';
+    },
     currentLevel: function() {
         this.level = this.level ? this.level : 1;;
-        var obj = this.game.levelFeatures[this.level];
-        obj.level = this.level;
+        var obj = this.levelFeatures[this.level];
         return obj;
     },
     init: function() {
         window.allEnemies = [];
         window.lootItems = [];
-        //this.generateItems()
+        this.generateItems()
         window.buddy = new Buddy();
         buddy.init();
         // create new player instance in the global context
         boss = new Boss();
+        boss.init();
         player = new Player();
 
         // create new enemy instances in the global context
-        for (var i = 0; i < this.game.initialEnemyCount; i++) {
+        for (var i = 0; i < this.initialEnemyCount; i++) {
             allEnemies.push(new Enemy());
         }
     },
@@ -187,20 +199,16 @@ World.prototype = {
         return rows;
     },
     generateItems: function() {
-        if (this.gameTime % 2 == 0) {
-            var currentLevel = this.currentLevel();
+        var currentLevel = this.currentLevel();
 
-            for (var i = 0; i < currentLevel.itemCount; i++) {
-                if (lootItems.length >= currentLevel.itemCount)
-                    break;
-                var name = randomChoice(currentLevel.itemNames);
-                var item = this.game.availableItems[name];
-                lootItems.push(new Loot(item));
-            }
+        for (var i = 0; i < currentLevel.itemCount; i++) {
+            if (lootItems.length >= currentLevel.itemCount)
+                break;
+            lootItems.push(new Loot());
         }
     },
     boundary: function() {
-        var bounds = this.game.canvas;
+        var bounds = this.canvas;
         return {
             x: bounds.x,
             y: bounds.y,
@@ -212,24 +220,23 @@ World.prototype = {
         // game properties
         this.score = 0;
         this.gameTime = 0;
-        this.animDelta = 0;
+        this.animationTime = 0;
         this.maxLevel = 3;
-        this.level = 1; // should initially be 1
-        this.gameOver = false;
-        this.gameComplete = false;
-        this.numRows = 6;
-        this.numCols = 5;
+        this.level = 1;
+        //this.state = 'start';
+        window.animDelta = 0;
+
     },
     block: function(row, col) {
-        yMargin = (row + 1) % this.numRows !== 0 ? this.game.canvas.y : 0;
+        yMargin = (row + 1) % this.numRows !== 0 ? this.canvas.y : 0;
 
         ctx.strokeRect(col * 101, 50 + (row * 83), 100, 83 + yMargin)
 
         return {
-            x: col * this.game.gridWidth,
-            y: (row * this.game.gridHeight) * this.game.canvas.y,
-            width: this.game.gridWidth,
-            height: this.game.gridHeight + yMargin
+            x: col * this.gridWidth,
+            y: (row * this.gridHeight) * this.canvas.y,
+            width: this.gridWidth,
+            height: this.gridHeight + yMargin
         };
     },
     newDropPos: function(option) {
@@ -262,48 +269,27 @@ World.prototype = {
         //increment enemy numbers as the game progresses
         // a new enemy is added every 5 seconds until maxEnemies number of enemies is reached
         if (this.gameTime % 5 < 0.016 && allEnemies.length < this.currentLevel().maxEnemies) {
-            console.log('increase enemy')
             var enemy = new Enemy();
             allEnemies.push(enemy);
         }
     },
     update: function(dt) {
-        world.gameTime += dt;
-        //this.incrementEnemies();
+        this.gameTime += dt;
+        if (this.isAnimating) {
+            this.animationTime += dt;
+        }
+        this.incrementEnemies();
         //this.handleCollisions();
     },
     render: function() {
-        /* This array holds the relative URL to the image used
-         * for that particular row of the game level.
-         */
-        var rowImages = [
-                'images/stone-block.png', // Row 1 of 3 of stone
-                'images/stone-block.png', // Row 2 of 3 of stone
-                'images/stone-block.png', // Row 3 of 3 of stone
-                'images/grass-block.png', // Row 1 of 2 of grass
-                'images/grass-block.png', // Row 2 of 2 of grass
-                'images/water-block.png' // Top row is water
+        var row, col, img,
+            rowImages = this.rowImages,
+            rowList = this.currentLevel().rowList;
 
-            ],
-            numRows = 6,
-            numCols = 5,
-            row, col;
-
-        /* Loop through the number of rows and columns we've defined above
-         * and, using the rowImages array, draw the correct image for that
-         * portion of the "grid"
-         */
-        for (row = 0; row < numRows; row++) {
-            for (col = 0; col < numCols; col++) {
-                /* The drawImage function of the canvas' context element
-                 * requires 3 parameters: the image to draw, the x coordinate
-                 * to start drawing and the y coordinate to start drawing.
-                 * We're using our Resources helpers to refer to our images
-                 * so that we get the benefits of caching these images, since
-                 * we're using them over and over.
-                 */
-                ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
-
+        for (row = 0; row < this.numRows; row++) {
+            for (col = 0; col < this.numCols; col++) {
+                img = rowImages[rowList[row]];
+                ctx.drawImage(Resources.get(img), col * 101, row * 83);
             }
         }
     },
@@ -317,7 +303,7 @@ var Entity = function() {
     this.base = 5;
 };
 
-Entity.prototype = extend(World.prototype, {
+Entity.prototype = extend(Game.prototype, {
     setSprite: function(spriteUrl, spriteX, spriteY, spriteWidth, spriteHeight) {
         this.sprite = {
             url: spriteUrl,
@@ -348,39 +334,24 @@ Entity.prototype = extend(World.prototype, {
         setTimeout(function() {
             this.isTalking = false;
         }.bind(this), duration);
-        //scaling and sizing
+
+        //scaling and sizing relative to content
         var box = this.hitbox(),
             x = box.r,
-            y = box.y - 50,
-            w = box.r - box.x,
-            h = box.b - box.y;
-        var mul = content.length / 10;
-        console.log('old wh', w, h)
-        w = mul < 0 ? content.length * 11 : 10 * 11;
-        h = 55 + (mul) * 25;
-        console.log('new wh', w, h)
-
+            y = box.y,
+            //boxW = box.r - box.x,
+            boxH = box.b - box.y - 30,
+            mul = content.length / 10,
+            w = 10 * 11,
+            h = 55 + (mul) * 50,
+            y = y - (h - boxH);
+        content = content.match(/\b[\w']+(?:[^\w\n]+[\w']+){0,2}\b/g); // split to 3 word chunks
         // drawing the speach bubble
         ctx.save()
         ctx.drawImage(Resources.get('images/SpeechBubble.png'), x, y, w, h);
 
         drawText(content, null, '#000', x + 15, y + 15 + (h / 2));
         ctx.restore();
-    },
-    handleOutOfBounds: function(world) {
-        var box = this.hitbox();
-        var bounds = world ? world : this.boundary();
-        bounds = this.super('currentLevel').bounds;
-
-        if (box.x < bounds.x) {
-            this.box.x = bounds.x;
-        }
-        if (box.y < bounds.y)
-            this.box.y = bounds.y;
-        if (box.r > bounds.r)
-            this.box.x = bounds.r-this.box.width;
-        if (box.b > bounds.b)
-            this.box.y = bounds.b-this.box.height;
     },
     isEdgeCollision: function(otherBox, inside) {
         var box = this.hitbox();
@@ -496,39 +467,24 @@ var Enemy = function() {
 }
 
 Enemy.prototype = extend(Entity.prototype, {
-    types: [{
-        url: 'images/enemy-bug.png',
-        minSpeed: 25,
-        maxSpeed: 50
-    }, {
-        url: 'images/enemy-bug-green.png',
-        minSpeed: 25,
-        maxSpeed: 75
-    }, {
-        url: 'images/enemy-bug-yellow.png',
-        minSpeed: 50,
-        maxSpeed: 100
-    }, ],
-    enemyWorldX: -606,
-    enemyWorldR: 606,
     generate: function() {
-        var species = randomChoice(this.types);
+        var species = randomChoice(this.enemyTypes);
         this.species = species;
-        this.maxSpeed = species.maxSpeed; //
-        this.minSpeed = species.minSpeed; //
-        this.speed = this.minSpeed + 5 * this.maxSpeed * Math.random();
+        this.maxSpeed = species.maxSpeed;
+        this.minSpeed = species.minSpeed;
+        this.speed = this.minSpeed + this.maxSpeed * Math.random();
         this.setSprite(species.url, 0, 80, 100, 80);
         this.setBox(0, 0, 90, 83);
         this.setOffset(10, 10, -10, -30);
-        console.log('init enemy', this.box)
+        this.reset();
     },
     randomYpos: function() {
         var lanes = this.super('currentLevel').enemyLaneRows;
-        var lane = randomChoice(lanes) * this.game.gridHeight;
-        return this.game.canvas.y + lane;
+        var lane = randomChoice(lanes) * this.gridHeight;
+        return this.canvas.y + lane;
     },
     reset: function() {
-        this.box.x = this.enemyWorldX;
+        this.box.x = -game.canvas.width;
         this.box.y = this.randomYpos();
     },
     update: function(dt) {
@@ -536,12 +492,11 @@ Enemy.prototype = extend(Entity.prototype, {
         this.speed = this.speed < this.minSpeed ? this.minSpeed : this.speed;
         this.speed = this.speed > this.maxSpeed * 1.5 ? this.maxSpeed : this.speed;
         // handle movement out of screen - detect when they go a certain distance and make them go back to start position(x axis)
-        this.box.x = (this.box.x > this.enemyWorldR) ? this.enemyWorldX : this.box.x + this.speed * dt;
+        this.box.x = (this.box.x > game.canvas.width * 1.5) ? -game.canvas.width : this.box.x + this.speed * dt;
 
         // check it also has valid y coords
-        //this.box.x = isNaN(this.box.x) ? this.enemyWorldX : this.box.x;
 
-        this.box.y = isNaN(this.box.y) ? this.randomYpos() : this.box.y;
+        //this.box.y = isNaN(this.box.y) ? this.randomYpos() : this.box.y;
         //console.log(isNaN(this.box.x)?'update enemy '+this.speed*dt+',NaN':'')
     },
     render: function() {
@@ -553,7 +508,7 @@ Enemy.prototype = extend(Entity.prototype, {
     handleEnemyCollision: function(dt) {
         //enemy from behind is slowed down
         //enemy infront gets speed boost
-        function changeEnemySpeed(enemy1, relativePos, enemy2, dt) {
+        function bumpEnemy(enemy1, relativePos, enemy2, dt) {
             // we'll use this value to set the new speed on collision
             var speed1 = enemy1.speed,
                 speed2 = enemy2.speed,
@@ -575,38 +530,45 @@ Enemy.prototype = extend(Entity.prototype, {
             var enemy2 = allEnemies[i];
             var x2 = enemy2.box.x;
             var collision = enemy2.isCollision(enemy1, 80);
+            var option = x2 < x1 ? 'infront' : 'behind';
 
             //handle collisions depending on enemy x positions
-            if (collision && x2 < x1) {
-                // enemy1 was infront of enemy2 and collides
-                changeEnemySpeed(enemy1, 'infront', enemy2, dt);
-            } else if (collision && x1 <= x2) {
-                // enemy1 was behind enemy2 and collides
-                changeEnemySpeed(enemy1, 'behind', enemy2, dt);
+            if (collision) {
+                bumpEnemy(enemy1, option, enemy2, dt);
             }
         }
     }
 
 });
 
+/*========================================================
+ * Boss Class
+ *========================================================
+ *
+ *
+ */
 var Boss = function() {
-    this.isChasing = false;
-    this.isSleep = true;
-    this.isAwake = false;
-    this.aliveTime = 0;
-    this.speed = 20; //rename - slugishness?
-    this.lastX = 0;
-    this.setBox(25, 380, 120, 100);
-    this.furyFlare = ['images/enemy-bug-blue.png', 'images/enemy-bug-purple.png'];
-    this.setSprite('images/enemy-bug.png', 0, 75, 100, 80);
-    this.setOffset(10, 10, -15, -30);
+    this.spriteReversed=false;
 
-    this.frameIndex = 0;
 };
 
 Boss.prototype = extend(Entity.prototype, {
+    init: function() {
+        this.isChasing = false;
+        this.isSleep = true;
+        this.isAwake = false;
+        this.aliveTime = 0;
+        this.speed = 20;
+        this.lastX = 0;
+        var pos = game.currentLevel().bossPos;
+        this.setBox(pos[0], pos[1], 120, 100);
+        this.furyFlare = ['images/enemy-bug-blue.png', 'images/enemy-bug-purple.png'];
+        this.setSprite('images/enemy-bug.png', 0, 75, 100, 80);
+        this.setOffset(10, 10, -15, -30);
+
+        this.frameIndex = 0;
+    },
     chase: function() {
-        //dazled !!!
         this.box.x += (player.box.x - this.box.x) * Math.pow(1 / this.speed, 2);
         this.box.y += (player.box.y - this.box.y) * Math.pow(1 / this.speed, 2);
     },
@@ -616,47 +578,51 @@ Boss.prototype = extend(Entity.prototype, {
         this.isChasing = true;
     },
     reset: function() {
-        this.box.x = this.start.x;
-        this.box.y = this.start.y;
-    },//
+        var pos = game.currentLevel().bossPos;
+        this.box.x = pos[0];
+        this.box.y = pos[1];
+    }, //
     update: function(dt) {
         this.aliveTime += dt;
+        this.spriteReversed = this.lastX > this.box.x ;
 
         if (!(this.isSleep)) {
-
             this.chase();
         }
-        this.spriteIsReversed = (this.lastX > this.box.x) ? true : false;
+
+        //console.log('isSprite reveresed',this.lastX, this.box.x, this.spriteReversed)
+        console.log('isSprite reveresed',this.spriteReversed)
 
         this.lastX = this.box.x;
-        var theTime = Math.floor(this.aliveTime - dt) < Math.floor(this.aliveTime) ? 2 : 1;
-        if (theTime % 2 == 0) {
-            this.frameIndex += 1;
-        }
-        this.frameIndex = this.frameIndex < 3 ? this.frameIndex : 0;
     },
     drawSleepBubble: function() {
         var r = this.hitbox().r,
             y = this.hitbox().y;
-        var color = 'rgba(255,255,255,0.5)';
+        var color = 'rgba(255,255,255,0.5)',
+            shadowColor = '#777';
+
+        var theTime = Math.floor(this.aliveTime - 0.02) < Math.floor(this.aliveTime) ? 2 : 1;
+        if (theTime % 2 == 0) {
+            this.frameIndex += 1;
+        }
+        this.frameIndex = this.frameIndex < 3 ? this.frameIndex : 0;
 
         if (this.frameIndex >= 0) {
-            drawCircle(r, y, 5, color);
+            drawCircle(r, y, 5, color, shadowColor);
         }
         if (this.frameIndex >= 1) {
-            drawCircle(r + 10, y - 15, 10, color);
+            drawCircle(r + 10, y - 15, 10, color, shadowColor);
             drawText('...', '16px Arial', '#555', r, y - 15);
 
             //ctx.fillRect(r + 5, y - 25, 25, 25);
         }
         if (this.frameIndex == 2) {
-            drawCircle(r + 20, y - 30, 15, color);
+            drawCircle(r + 20, y - 30, 15, color, shadowColor);
             drawText('zzz', '16px Arial', '#555', r + 10, y - 25);
         }
     },
     render: function() {
-        var img;
-        img = this.sprite.url;
+        var img = this.sprite.url;
 
         if (this.isSleep) {
             this.drawSleepBubble();
@@ -664,8 +630,9 @@ Boss.prototype = extend(Entity.prototype, {
             img = randomChoice(this.furyFlare);
         }
 
-        if (this.spriteIsReversed) {
+        if (this.spriteReversed) {
             img = img.replace('.png', '-reversed.png');
+            console.log('reversed', img)
         }
 
         Entity.prototype.render.call(this, img);
@@ -673,22 +640,26 @@ Boss.prototype = extend(Entity.prototype, {
 });
 
 
-/* Player Class
- * ============
+/* =============================================================
+ * Player Class
+ * ============================================================
  * Main character in game
+ *
  */
 var Player = function() {
-    //Entity.call(this);
     this.message = {
-        'sleep': '...leave it'
+        'sleep': '... leave it',
+        'paired': ' Now i need to find the key ...?'
     };
+
     this.playerFail = false;
     this.lives = 3;
+    console.log(game.currentLevel())
+    var pos = game.currentLevel().playerPos;
+    this.setBox(pos[0], pos[1], 90, 83);
+    this.setOffset(10, 15, -35, -25);
     this.setSprite('images/char-boy.png', 10, 65, 100, 80);
-    this.start_pos = this.super('currentLevel').playerLocation; //world.newDropPos('special');
-    this.setOffset(10, 20, -35, -25);
-    this.setBox(this.start_pos[0], this.start_pos[1], 90, 83);
-    console.log('player init:', this.box, this.offset)
+
 };
 
 Player.prototype = extend(Entity.prototype, {
@@ -702,7 +673,37 @@ Player.prototype = extend(Entity.prototype, {
     },
     react: function(key) {
         this.isTalking = true;
-        this.messageIndex = key;
+        this.messageIndex = key; // speak message when boss is sleep
+
+        // prevent collision player shouldnt wake up boss
+        if (boss.isSleep) {
+            var xAxis = this.box.x < boss.box.x ? -1 : 1; //is player infront or behind
+            var yAxis = this.box.y < boss.box.y ? -1 : 1;
+            var dir = game.playerDirection;
+            if (dir === 'left' || dir === 'right') {
+                this.box.x = boss.box.x + xAxis * Math.abs(boss.box.width); //prevent collision
+
+            } else if (dir === 'up' || dir === 'down') {
+
+                this.box.y = boss.box.y + yAxis * Math.abs(boss.box.height); // prevent collision
+            }
+
+        }
+    },
+    handleOutOfBounds: function() {
+        var box = this.hitbox();
+        //var bounds = world ? world : game.boundary();
+        var bounds = game.currentLevel().bounds;
+
+        if (box.x < bounds.x) {
+            this.box.x = bounds.x;
+        }
+        if (box.y < bounds.y)
+            this.box.y = bounds.y;
+        if (box.r > bounds.r)
+            this.box.x = bounds.r - this.box.width;
+        if (box.b > bounds.b)
+            this.box.y = bounds.b - this.box.height;
     },
     move: function(key) {
         // given a key this returns +1 or -1 equiv to the direction component
@@ -715,21 +716,23 @@ Player.prototype = extend(Entity.prototype, {
             'down': 1
         };
 
-        this.box.x += (xDirection[key] || 0) * this.game.gridWidth;
-        this.box.y += (yDirection[key] || 0) * this.game.gridHeight;
+        this.box.x += (xDirection[key] || 0) * this.gridWidth;
+        this.box.y += (yDirection[key] || 0) * this.gridHeight;
     },
     kill: function() {
         --this.lives;
-        if (this.lives != 0) {
+        if (this.lives >= 1) {
             this.reset();
-            this.gameOver = false;
+            game.gameOver = false;
         } else {
-            this.gameOver = true;
+            game.gameOver = true;
         }
     },
     reset: function() {
-        this.box.x = this.start.x;
-        this.box.y = this.start.y;
+        var pos = game.currentLevel().playerPos;
+
+        this.box.x = pos[0];
+        this.box.y = pos[1];
     },
     render: function() {
         this.super('render', this.sprite.url);
@@ -741,128 +744,107 @@ Player.prototype = extend(Entity.prototype, {
         // re-initialize game if space is pressed and we're at game over menu
         // or if the game is reset manually by via r/R keys
         if (key == 'P' || key == 'p') {
-            //world.pause();
-        } else if (key == 'space' && world.gameOver) {
-            world.reset();
+            game.togglePause();
+        } else if (key == 'space' && (game.state === 'lost' || game.state === 'complete')) {
+            //game.reset();
+            game.resetState();
+            game.init();
             // press space at start screen window to play game
-        } else if (key == 'space' && world.startUp) {
-            world.startUp = false;
-            world.animDelta = 0; // clear custom animation timer
+        } else if (key == 'space' && game.state === 'start') {
+            game.resetState();
+            game.animationTime = 0; // clear custom animation timer
             // update player position in response to key press
         } else {
+            game.playerDirection = key;
             this.move(key);
         }
     }
 });
 
-
+/* =============================================================
+ * Loot Class
+ * ============================================================
+ * Game Items player can collect in game
+ *
+ */
 var Loot = function(item) {
-    this.constructor.count = this.constructor.count || 1;
-    if (item === undefined) {
-        item = this.randomItemName();
-    }
+    item = item === undefined ? this.randomItemName() : item;
     this.newItem(item);
 };
 Loot.prototype = extend(Entity.prototype, {
     newItem: function(item) {
-        this.constructor.count++;
+        var enemyLaneRows = this.currentLevel().enemyLaneRows;
+        var rowIndex = randomChoice(enemyLaneRows),
+            colIndex = randomChoice(enemyLaneRows),
+            gW = game.gridWidth,
+            gH = game.gridHeight
+        x = (colIndex * gW),
+            y = (rowIndex * gH) + (gH / 2);
 
-        this.pointsValue = item.points;
-        this.delayFactor = item.points * Math.random() / 10;
-        this.createdAt = world.gameTime; // todo: possible problem
         this.name = item.name;
+        this.pointsValue = item.points;
+        this.delayFactor = item.points * Math.random() / 25;
+        this.createdAt = game.gameTime; // todo: possible problem
         this.collected = false;
         this.setSprite(item.url, 0, 40, 100, 130);
-        var gW = World.prototype.game.gridWidth,
-            gH = World.prototype.game.gridHeight;
-        var currentLevel = World.prototype.currentLevel.call(this);
-
-        //5, 35,
-        var rowIndex = randomChoice(currentLevel.enemyLaneRows),
-            colIndex = randomChoice(currentLevel.enemyLaneRows)
-        var x = (colIndex * gW);
-        var y = (rowIndex * gH) + (gH / 2)
-
-        this.setOffset(5, 5, -10, -10);
+        this.setOffset(5, 10, -10, -10);
         this.setBox(x, y, 75, 85);
-        console.log('new item',item.name, rowIndex, x, y)
     },
     randomItemName: function() {
-        var currentLevel = World.prototype.currentLevel.call(this);
-
+        var currentLevel = game.currentLevel();
+        if (game.score > 1000 && buddy.isPaired) {
+            currentLevel.itemNames.push('key');
+        }
         var name = randomChoice(currentLevel.itemNames);
-        var item = World.prototype.game.availableItems[name];
+        var item = this.availableItems[name];
         return item;
     },
     collect: function() {
-        this.score += this.pointsValue; //increment score
-        this.collected = true;
+        if (this.collected === false) {
+            game.score += this.pointsValue; //increment game score
+            this.collected = true;
+        }
     },
     render: function() {
-        var lhs = (world.gameTime - this.createdAt),
-            cond = lhs > this.delayFactor;
-        if (cond) {
+        if (!this.collected) {
             this.super('render', this.sprite.url);
         }
-        //console.log('render item @',this.createdAt,lhs,cond,this.delayFactor);
-
     },
     update: function() {
-        if (this.collected) {
-
-            if (this.constructor.count % 5 === 0) {
-                var names = [];
-                lootItems.forEach(function(item) {
-                    if (item.name == 'key') {
-                        names.push(item.name);
-                    }
-                });
-
-                if (names.length == 0) {
-                    console.log('generating key')
-                    var item=World.prototype.game.availableItems['key'];
-                    this.newItem(item);
-                    return;
-                }
+        if (game.gameTime % 3 <= 0.016) {
+            if (this.collected || (!buddy.isPaired && this.name === 'key')) {
+                var name = this.randomItemName();
+                this.newItem(name);
             }
-            console.log('count', this.constructor.count)
-            var name = this.randomItemName();
-            this.newItem(name);
         }
     }
 });
-var Buddy = function() {
-
-};
+var Buddy = function() {};
 Buddy.prototype = extend(Entity.prototype, {
-    init: function(level) {
+    init: function() {
         // this mapping maps a sprite url to each level
-        var current = this.super('currentLevel').buddySprite;
-        //console.log(current)
+        var current = game.currentLevel().buddySprite;
         this.isTalking = true;
+        this.isPaired = false;
         this.setSprite(current.url, 15, 60, 70, 80); // create sprite object
 
         this.setOffset(0, 0, 0, 0);
         this.setBox(current.pos.x, current.pos.y, 70, 80); // create a hit box/
     },
+
     render: function() {
-        this.super('render', this.sprite.url);
 
-        if (this.isPaired == true) { // todo: change to this
-
-        } else {
-            if (this.isTalking == true) {
-                this.talk('help!', 2500)
-            }
-        }
-
-    },
-    update: function() {
-        if (this.isPaired == true) {
-            this.setBox(125, 15, 25, 25);
+        if (this.isPaired) {
+            drawCircle(565, 25, 20, 'rgb(20,200,10)', '#777');
+            this.setBox(550, 10, 28, 28);
             this.setSprite(this.sprite.url, 15, 60, 70, 62);
-
+        } else if (this.isTalking) {
+            this.talk('help!', 2500);
         }
+        Entity.prototype.render.call(this, this.sprite.url);
+    },
+    reset: function() {
+
     }
 
 });
@@ -886,13 +868,13 @@ function randomChoice(options) {
     return options[randomIndex];
 }
 
-function drawCircle(centerX, centerY, radius, color) {
+function drawCircle(centerX, centerY, radius, color, shadow) {
     ctx.save();
     ctx.beginPath(); // shaddow effect for box and text
     ctx.shadowOffsetX = 5;
     ctx.shadowOffsetY = 5;
     ctx.shadowBlur = 4;
-    ctx.shadowColor = '#777';
+    ctx.shadowColor = shadow;
 
     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
     ctx.fillStyle = color;
@@ -955,20 +937,11 @@ function drawTextStroke(text, font, color, x, y) {
  *====================================================
  */
 
-var world = new World();
-world.init();
-generateItems();
+var game = new Game();
+game.init();
+//generateItems();
 
-function generateItems() {
-    var currentLevel = world.currentLevel();
 
-    for (var i = 0; i < currentLevel.itemCount; i++) {
-        if (lootItems.length >= currentLevel.itemCount)
-            break;
-        lootItems.push(new Loot());
-    }
-
-}
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
