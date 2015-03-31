@@ -6,15 +6,10 @@
  */
 /* World Class
  * ==========
- * holds all the game properties and methods pertaining to game state
+ * handles game data and s
  */
 var Game = function() {
-    this.animationTime = 0;
-    this.isAnimating = false;
-    this.level = 1;
-    this.state = 'start';
-    this.resetGame(); // reset properties
-
+    this.resetGame();
 };
 
 Game.prototype = {
@@ -777,7 +772,7 @@ Player.prototype = extend(Entity.prototype, {
             game.resetState();
             game.animationTime = 0; // clear custom animation timer
             game.isAnimating = false;
-
+            bgAudio.play(); // play background audio
             // update player position in response to key press
         } else {
             game.playerDirection = key;
@@ -890,11 +885,46 @@ Loot.prototype = extend(Entity.prototype, {
 
 
 
+
+
+/*
+ *==============================================================================
+    Initialiaze game
+ *==============================================================================
+ */
+    var game = new Game();
+    game.initGame();
+
+// This listens for key presses and sends the keys to your
+// Player.handleInput() method. You don't need to modify this.
+document.addEventListener('keyup', function(e) {
+    var allowedKeys = {
+        32: 'space',
+        37: 'left',
+        38: 'up',
+        39: 'right',
+        40: 'down',
+        80: 'P',
+        82: 'R',
+        114: 'r',
+        112: 'p'
+    };
+
+    player.handleInput(allowedKeys[e.keyCode]);
+});
+
 /*
  *==============================================================================
     Helper functions
  *==============================================================================
  */
+
+var bgAudio=document.createElement("audio");
+
+bgAudio.setAttribute('src',"http://www.freesfx.co.uk/rx2/mp3s/9/10648_1378485065.mp3");
+bgAudio.loop='loop';
+bgAudio.id='mya';
+bgAudio.volume=0.005;
 
 /* rSelect: randomly selects an item from an Array
  * @params: (Array) options
@@ -975,33 +1005,3 @@ function drawTextStroke(text, font, color, x, y) {
         ctx.strokeText(text, x, y);
     }
 }
-
-/*
- *====================================================
-    Initialiaze game
- *====================================================
- */
-
-var game = new Game();
-game.initGame();
-//generateItems();
-
-
-
-// This listens for key presses and sends the keys to your
-// Player.handleInput() method. You don't need to modify this.
-document.addEventListener('keyup', function(e) {
-    var allowedKeys = {
-        32: 'space',
-        37: 'left',
-        38: 'up',
-        39: 'right',
-        40: 'down',
-        80: 'P',
-        82: 'R',
-        114: 'r',
-        112: 'p'
-    };
-
-    player.handleInput(allowedKeys[e.keyCode]);
-});

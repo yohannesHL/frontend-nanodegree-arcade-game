@@ -1,6 +1,15 @@
 frontend-nanodegree-arcade-game
 ===============================
 
-Students should use this rubric: https://www.udacity.com/course/viewer#!/c-ud015/l-3072058665/m-3072588797
+###A HTML5 implementation of a classic arcade game (frogger).
+[test it out here](yohanneshl.github.io/frontend-nanodegree-arcade-game/) using any modern browser.
 
-for self-checking their submission.
+1. Help your friends cross the road while avoiding the giant bug.
+1. Try to collect as many points as you can, the key will unlock the next level.
+1. But watch out these bugs can be fast.
+
+##### Controls
+*press space to start the game
+*p to pause the game
+*use arrow key to move about
+

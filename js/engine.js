@@ -86,7 +86,6 @@ var Engine = (function(global) {
             game.updateGame(dt);
             handleCollisions(dt);
         }
-
     }
 
     /* renderState:
@@ -115,9 +114,10 @@ var Engine = (function(global) {
             } else if (game.state === 'levelup') {
                 renderLevelUp();
             }
-        }
-        /* render: main render function calls renderGame() or renderState()
-         */
+    }
+
+    /* render: main render function calls renderGame() or renderState()
+    */
     function render() {
         if (game.state !== '') {
             renderState();
@@ -141,9 +141,10 @@ var Engine = (function(global) {
             game.animationTime = 0;
             game.isAnimating = true;
             game.state = state;
-        }
-        /* playerFail: called when player collides with enemy
-         */
+    }
+
+    /* playerFail: called when player collides with enemy
+    */
     function playerFail() {
             player.kill()
             if (player.lives === 0) {
@@ -151,10 +152,11 @@ var Engine = (function(global) {
                 return;
             }
             triggerState('fail', 1000);
-        }
-        /* handleCollisions: handles Collisions between objects
-         * @param; (int) dt - time delta
-         */
+    }
+
+    /* handleCollisions: handles Collisions between objects
+     * @param; (int) dt - time delta
+     */
     function handleCollisions(dt) {
 
         // enemy collision
@@ -290,9 +292,10 @@ var Engine = (function(global) {
              * won't leak out to other renderings
              */
             ctx.restore();
-        }
-        /* renderGamePause: draws the game complete window
-         */
+    }
+
+    /* renderGamePause: draws the game complete window
+    */
     function renderGamePause() {
             ctx.save();
             ctx.fillStyle = 'rgba(0,0,0,0.005)';
@@ -300,9 +303,10 @@ var Engine = (function(global) {
             drawText('Pause ', 'bold 82px Monospace', 'rgb(0,0,0)', 230, 400);
             drawTextStroke('Pause ', 'bold 82px Monospace', '#fff', 230, 400);
             ctx.restore();
-        }
-        /* renderGameFail: draws the game fail window
-         */
+    }
+
+    /* renderGameFail: draws the game fail window
+    */
     function renderGameFail() {
             ctx.save();
             ctx.fillStyle = 'rgba(50,50,50,0.05)';
@@ -315,9 +319,10 @@ var Engine = (function(global) {
             drawText('...Try Again!', 'bold 38px Futura', '#fff', 200, 350);
             drawTextStroke('...Try Again!', 'bold 38px Futura', '#c93', 200, 350);
             ctx.restore();
-        }
-        /* renderGameOver: draws the game over window
-         */
+    }
+
+    /* renderGameOver: draws the game over window
+    */
     function renderGameOver() {
             ctx.save();
             ctx.fillStyle = 'rgba(240, 110, 100,0.005)';
@@ -350,8 +355,9 @@ var Engine = (function(global) {
                 150, 500);
             ctx.restore();
         }
-        /* renderGameComplete: draws the game complete window
-         */
+
+    /* renderGameComplete: draws the game complete window
+    */
     function renderGameComplete() {
             ctx.save();
             ctx.lineWidth = 5;
@@ -372,8 +378,9 @@ var Engine = (function(global) {
 
             ctx.restore();
         }
-        /* renderLevelUp: draws the levelup screen
-         */
+
+    /* renderLevelUp: draws the levelup screen
+    */
     function renderLevelUp() {
         ctx.save();
 
