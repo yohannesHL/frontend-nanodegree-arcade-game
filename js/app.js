@@ -425,7 +425,7 @@ Entity.prototype = {
 
         // drawing the speach bubble
         ctx.save()
-        ctx.drawImage(Resources.get('images/SpeechBubble.png'), x, y, w, h);
+        ctx.drawImage(Resources.get('images/speechbubble.png'), x, y, w, h);
         drawText(content, null, '#000', x + 15, y + 15 + (h / 2));
         ctx.restore();
     },

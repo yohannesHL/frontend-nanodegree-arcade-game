@@ -427,8 +427,7 @@ var Engine = (function(global) {
         'images/gem green.png',
         'images/star.png',
         'images/key.png',
-
-        'images/SpeechBubble.png',
+        'images/speechbubble.png',
         'images/char-cat-girl.png',
         'images/char-horn-girl.png',
         'images/char-princess-girl.png'
