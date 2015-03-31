@@ -1,3 +1,9 @@
-body {
+html,body {
     text-align: center;
+    width:auto;
+    height:100%;
+}
+canvas {
+  height:90%;
+  width:auto;
 }
