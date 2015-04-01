@@ -6,7 +6,7 @@
  */
 /* World Class
  * ==========
- * handles game data and s
+ * handles game data and settings this initializes the game
  */
 var Game = function() {
     this.resetGame();
@@ -44,13 +44,13 @@ Game.prototype = {
     }, ],
     levels: {
         1: {
+            playerLoc: [6,6],
             itemNames: ['heart', 'orangeGem', 'blueGem', 'greenGem'],
             maxItems: 5,
             minEnemies: 5,
             maxEnemies: 10,
             enemyLaneRows: [2, 3, 4, 5],
             rowList: ['grass', 'stone', 'stone', 'stone', 'stone', 'stone', 'grass', 'water'],
-            playerPos: [600, 575],
             bossPos: [125, 110],
             buddySprite: {
                 url: 'images/char-cat-girl.png',
@@ -67,6 +67,7 @@ Game.prototype = {
             }
         },
         2: {
+            playerLoc: [1,0],
             itemNames: ['heart', 'star', 'blueGem', 'greenGem', 'orangeGem'],
             maxItems: 5,
             minEnemies: 6,
@@ -74,7 +75,6 @@ Game.prototype = {
             enemyLaneRows: [2, 3, 4, 5],
             rowList: ['water', 'grass', 'stone', 'stone', 'stone', 'stone', 'grass', 'water', ],
             bossPos: [125, 540],
-            playerPos: [101, 50],
             buddySprite: {
                 url: 'images/char-horn-girl.png',
                 pos: {
@@ -90,6 +90,7 @@ Game.prototype = {
             }
         },
         3: {
+            playerLoc: [3,7],
             itemNames: ['heart', 'star', 'blueGem', 'greenGem', 'orangeGem'],
             maxItems: 5,
             maxEnemies: 10,
@@ -97,7 +98,6 @@ Game.prototype = {
             enemyLaneRows: [2, 3, 4, 5],
             rowList: ['grass', 'stone', 'stone', 'stone', 'stone', 'stone', 'grass', 'grass', ],
             bossPos: [505, 200],
-            playerPos: [303, 625],
             buddySprite: {
                 url: 'images/char-princess-girl.png',
                 pos: {
@@ -109,7 +109,7 @@ Game.prototype = {
                 x: 0,
                 y: 50,
                 r: 707,
-                b: 708
+                b: 707
             }
         },
     },
@@ -146,24 +146,21 @@ Game.prototype = {
         }
     },
     /* initGame:
-     * initialize game - initialiaze all entities
+     * initialize game - initialiaze all game objects available in the global context
      */
     initGame: function() {
         window.allEnemies = [];
         window.lootItems = [];
-        // create new player instance in the global context
+        // initialize main characters and make available in the global context
         window.player = new Player();
         window.buddy = new Buddy();
-        this.generateItems()
         window.boss = new Boss();
-        // create new enemy instances in the global context
+        // populate allEnemies with enemy instances
         for (var i = 0; i < this.current('minEnemies'); i++) {
             allEnemies.push(new Enemy());
         }
-    },
-    /* generateItems: populates lootItems Array with Loot
-     */
-    generateItems: function() {
+
+        // populates lootItems Array with Loot
         for (var i = 0; i < this.current('maxItems'); i++) {
             lootItems.push(new Loot());
         }
@@ -254,9 +251,10 @@ Game.prototype = {
         });
 
         // render main characters player,buddy,boss
-        player.render();
         boss.render();
         buddy.render();
+        player.render();
+
     },
     /* renderGamePanes:
      * draws top and bottom panes
@@ -347,9 +345,9 @@ Game.prototype = {
 };
 
 /* =============================================================================
- * Entity base class
+ * Entity Base class
+ * =============================================================================
  * holds common properites and methods of an Entity
- *
  */
 var Entity = function() {};
 Entity.prototype = {
@@ -368,7 +366,7 @@ Entity.prototype = {
             y: y
         };
     },
-    /* setBox: sets this.sprite properties
+    /* setSprite: sets this.sprite properties
      * @params: (string) url, (number) x, (number) y, (number) width, (number) height
      */
     setSprite: function(spriteUrl, spriteX, spriteY, spriteWidth, spriteHeight) {
@@ -391,8 +389,8 @@ Entity.prototype = {
             b: b
         };
     },
-    /* renderGamePanes:
-     * draws top and bottom panes
+    /* hitbox: computes the effective hit box by
+     * accounting for offset values if present
      */
     hitbox: function() {
         return {
@@ -431,19 +429,13 @@ Entity.prototype = {
     },
     /* inCollision:
      * @returns: a boolean to indicate an overlap of two objects,
-     * the entity object and the input object.
-     * @param: box2 - an object with properties (x,y,width,height)
-     * @param(optional): proximity  - the distance between objects' edges
+     * @param: entity2 - an Entity object
+     * @param: (number) proximity (optional) - distance between objects' edges
      */
     inCollision: function(entity2, proximity) {
         var box1 = this.hitbox();
         var box2 = entity2.hitbox();
 
-        /*if(inside){
-            box2 = entity2;
-            //box.r=..
-
-        }*/
         proximity = proximity ? proximity : 0;
         var x1 = box1.x + proximity,
             y1 = box1.y,
@@ -453,12 +445,9 @@ Entity.prototype = {
             b1 = box1.b,
             r2 = box2.r + proximity,
             b2 = box2.b;
+
         var xCollision = !((x1 < x2 && r1 < x2) || (x1 > x2 && r2 < x1));
         var yCollision = !((y1 < y2 && b1 < y2) || (y1 > y2 && b2 < y1));
-        /*if(inside){
-            var xCollision = !((x1 > x2 || r1 < r2));
-            var yCollision = !((y1 > y2 || b1 < b2));
-        }*/
 
         return (xCollision && yCollision);
     },
@@ -512,8 +501,7 @@ Enemy.prototype = extend(Entity.prototype, {
      */
     update: function(dt) {
         //ensure speed regulations are in forced
-        this.speed = this.speed < this.minSpeed ? this.minSpeed : this.speed;
-        this.speed = this.speed > this.maxSpeed * 1.5 ? this.maxSpeed : this.speed;
+        this.speed = Math.min(Math.max(this.speed,this.minSpeed),this.maxSpeed*1.5)
         // increment x but when out of screen go back to start position(x axis)
         this.box.x = (this.box.x > game.canvas.width * 1.5) ? -game.canvas.width : this.box.x + this.speed * dt;
     },
@@ -547,7 +535,7 @@ Enemy.prototype = extend(Entity.prototype, {
 
         var enemy1 = this;
         var x1 = enemy1.box.x;
-
+        // check if the two enemies collide and if they do call crashEnemy()
         for (var i = 0; i < allEnemies.length; i++) {
             var enemy2 = allEnemies[i];
             var x2 = enemy2.box.x;
@@ -663,24 +651,19 @@ Boss.prototype = extend(Entity.prototype, {
  *
  */
 var Player = function() {
+    // this is what the player ill say given a situation ie boss is sleep, is paired with buddy
     this.message = {
         'sleep': '...!? leave it',
         'paired': ' Now where can i find a key ...?'
     };
-    this.last = {
-        x: 0,
-        y: 0
-    };
-    this.s = {
-        x: 0,
-        y: 0
-    };
+
     this.playerFail = false;
     this.lives = 3;
-    var pos = game.current('playerPos');
-    this.setBox(pos[0], pos[1], 90, 83);
-    this.setOffset(10, 15, -35, -25);
-    this.setSprite('images/char-boy.png', 10, 65, 100, 80);
+    this.setSprite('images/char-boy.png', 10, 65, 100, 80);//set the sprite inc the clipping region
+    this.setBox(0, 0, 101, 83); // the scaled sprite size box
+    this.setOffset(10, 15, -35, -25); // offsets used for comuting hitbox
+    this.reset(); // set the players position
+
 
 };
 
@@ -699,7 +682,7 @@ Player.prototype = extend(Entity.prototype, {
      */
     action: function(key) {
         this.isTalking = true;
-        this.messageIndex = key; // speak message when boss is sleep
+        this.messageIndex = key; // speak message with this identifier
 
         // prevent player from waking up boss
         if (boss.isSleep) {
@@ -740,14 +723,19 @@ Player.prototype = extend(Entity.prototype, {
     /* reset: reset players position
      */
     reset: function() {
-        var pos = game.current('playerPos');
-        this.box.x = pos[0];
-        this.box.y = pos[1];
+        var pos = game.current('playerLoc');
+            gW = game.gridWidth,
+            gH = game.gridHeight
+            x = (pos[0] * gW),
+            y = (pos[1] * gH) + game.canvas.y;
+        this.box.x = x;
+        this.box.y = y;
     },
-    /* render: render player
+    /* render: render player passing url to the parents render method
      */
     render: function() {
-        this.super('render', this.sprite.url);
+        Entity.prototype.render.call(this, this.sprite.url);
+        // render a speach bubble that hides after 2 secs
         if (this.isTalking) {
             this.speechBubble(this.message[this.messageIndex], 2000);
         }
@@ -773,6 +761,7 @@ Player.prototype = extend(Entity.prototype, {
             game.animationTime = 0; // clear custom animation timer
             game.isAnimating = false;
             bgAudio.play(); // play background audio
+
             // update player position in response to key press
         } else {
             game.playerDirection = key;
@@ -817,21 +806,21 @@ Buddy.prototype = extend(Entity.prototype, {
  * @param: (object) item (optional)
  */
 var Loot = function(item) {
-    item = item === undefined ? this.randomItemName() : item;
-    this.newItem(item);
+    item = item === undefined ? this.randomItem() : item;
+    this.newLoot(item);
 };
 
 Loot.prototype = extend(Entity.prototype, {
-    /* newItem: generates a new item given
+    /* newLoot: creates a new Loot item from item data
      * @params: (object) item
      */
-    newItem: function(item) {
+    newLoot: function(item) {
         var enemyLaneRows = game.current('enemyLaneRows');
         var rowIndex = rSelect(enemyLaneRows),
             colIndex = rSelect(enemyLaneRows),
             gW = game.gridWidth,
             gH = game.gridHeight
-        x = (colIndex * gW),
+            x = (colIndex * gW),
             y = (rowIndex * gH) + (gH / 2);
 
         this.name = item.name;
@@ -840,13 +829,13 @@ Loot.prototype = extend(Entity.prototype, {
         this.createdAt = game.gameTime; // todo: possible problem
         this.collected = false;
         this.setSprite(item.url, 0, 40, 100, 130);
-        this.setOffset(5, 10, -10, -10);
-        this.setBox(x, y, 75, 85);
+        this.setOffset(5, 10, -10, -5);
+        this.setBox(x, y, 75, 83);
     },
-    /* randomItemName: creates a random name including key (if buddy is assisted)
+    /* randomItem: generate a random item object including key (if buddy is assisted)
      * @return: (object) item
      */
-    randomItemName: function() {
+    randomItem: function() {
         var current = game.current();
         if (game.score > 1000 && buddy.isPaired) {
             current.itemNames.push('key');
@@ -855,7 +844,7 @@ Loot.prototype = extend(Entity.prototype, {
         var item = game.availableItems[name];
         return item;
     },
-    /* collect: increments game score
+    /* collect: increments game score and set collected flag
      */
     collect: function() {
         if (this.collected === false) {
@@ -876,9 +865,9 @@ Loot.prototype = extend(Entity.prototype, {
     /* update: regenerates a new item if it was collected
      */
     update: function() {
-        //regenerate collected items and the key item if  buddy is not paired
+        //regenerate collected items , and if  buddy is not paired the key item also
         if (this.collected || (!buddy.isPaired && this.name === 'key')) {
-            this.newItem(this.randomItemName());
+            this.newLoot(this.randomItem());
         }
     }
 });
@@ -905,8 +894,6 @@ document.addEventListener('keyup', function(e) {
         39: 'right',
         40: 'down',
         80: 'P',
-        82: 'R',
-        114: 'r',
         112: 'p'
     };
 
@@ -920,8 +907,8 @@ document.addEventListener('keyup', function(e) {
  */
 
 var bgAudio=document.createElement("audio");
-
-bgAudio.setAttribute('src',"http://www.freesfx.co.uk/rx2/mp3s/9/10648_1378485065.mp3");
+// Free audio : Heroic from newgrounds.com/
+bgAudio.setAttribute('src',"http://audio.ngfiles.com/210000/210526_Heroic.mp3");
 bgAudio.loop='loop';
 bgAudio.id='mya';
 bgAudio.volume=0.005;
